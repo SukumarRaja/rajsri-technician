@@ -4,6 +4,11 @@ import 'package:flutter/services.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/jobs/presentation/screens/jobs_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_event.dart';
+import '../../di/injection_container.dart';
+import '../../core/services/app_update_manager.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -16,6 +21,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   DateTime? _lastPressedAt;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      sl<AppUpdateManager>().checkForUpdates(context);
+    });
+  }
+
   final List<Widget> _screens = [
     const DashboardScreen(),
     const JobsScreen(),
@@ -24,7 +37,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
+    return BlocProvider(
+      create: (context) => sl<ProfileBloc>()..add(const FetchProfileEvent()),
+      child: PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
@@ -93,6 +108,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Profile',
           ),
         ],
+      ),
       ),
       ),
     );

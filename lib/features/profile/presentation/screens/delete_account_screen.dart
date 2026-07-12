@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../tracking/presentation/bloc/tracking_bloc.dart';
+import '../../../tracking/presentation/bloc/tracking_event.dart';
+import '../bloc/profile_bloc.dart';
+import '../bloc/profile_event.dart';
+import '../bloc/profile_state.dart';
+import '../../../../di/injection_container.dart';
 
 class DeleteAccountScreen extends StatelessWidget {
   const DeleteAccountScreen({super.key});
@@ -8,8 +18,10 @@ class DeleteAccountScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+    return BlocProvider(
+      create: (context) => sl<ProfileBloc>(),
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Delete Account'),
       ),
@@ -43,22 +55,43 @@ class DeleteAccountScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 48),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _showConfirmationDialog(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.error,
-                  foregroundColor: colorScheme.onError,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            BlocConsumer<ProfileBloc, ProfileState>(
+              listener: (context, state) {
+                if (state is DeleteAccountSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Account deleted successfully.'), backgroundColor: Colors.green),
+                  );
+                  context.read<TrackingBloc>().add(StopTrackingEvent());
+                  context.read<AuthBloc>().add(LogoutEvent());
+                  context.go('/login');
+                } else if (state is DeleteAccountError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                  );
+                }
+              },
+              builder: (context, state) {
+                if (state is DeleteAccountLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showConfirmationDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.error,
+                      foregroundColor: colorScheme.onError,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Delete My Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
-                ),
-                child: const Text('Delete My Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -79,27 +112,26 @@ class DeleteAccountScreen extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Confirm Deletion'),
           content: const Text('Are you absolutely sure you want to permanently delete your account?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Account deletion requested.')),
-                );
+                Navigator.of(dialogContext).pop();
+                context.read<ProfileBloc>().add(DeleteAccountEvent());
               },
               child: Text(
                 'Delete',

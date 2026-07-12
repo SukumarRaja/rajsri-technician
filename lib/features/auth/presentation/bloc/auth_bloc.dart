@@ -23,7 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final result = await authRepository.login(event.email, event.password);
+    final result = await authRepository.login(event.phone, event.password);
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(AuthAuthenticated()),

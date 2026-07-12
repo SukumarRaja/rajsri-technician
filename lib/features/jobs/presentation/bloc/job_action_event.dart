@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../data/models/complete_job_request.dart';
 
 abstract class JobActionEvent extends Equatable {
   const JobActionEvent();
@@ -32,7 +33,26 @@ class StartJobEvent extends JobActionEvent {
 class CompleteJobEvent extends JobActionEvent {
   final int jobId;
   final String? notes;
-  const CompleteJobEvent(this.jobId, {this.notes});
+  final List<String>? images;
+  final List<PartUsed>? partsUsed;
+
+  const CompleteJobEvent(
+    this.jobId, {
+    this.notes,
+    this.images,
+    this.partsUsed,
+  });
+
   @override
-  List<Object?> get props => [jobId, notes];
+  List<Object?> get props => [jobId, notes, images, partsUsed];
+}
+
+class CancelJobEvent extends JobActionEvent {
+  final int jobId;
+  final String reason;
+
+  const CancelJobEvent(this.jobId, this.reason);
+
+  @override
+  List<Object?> get props => [jobId, reason];
 }

@@ -11,6 +11,7 @@ class JobActionBloc extends Bloc<JobActionEvent, JobActionState> {
     on<RejectJobEvent>(_onRejectJob);
     on<StartJobEvent>(_onStartJob);
     on<CompleteJobEvent>(_onCompleteJob);
+    on<CancelJobEvent>(_onCancelJob);
   }
 
   Future<void> _onAcceptJob(AcceptJobEvent event, Emitter<JobActionState> emit) async {
@@ -42,10 +43,24 @@ class JobActionBloc extends Bloc<JobActionEvent, JobActionState> {
 
   Future<void> _onCompleteJob(CompleteJobEvent event, Emitter<JobActionState> emit) async {
     emit(JobActionLoading(event.jobId));
-    final result = await repository.completeJob(event.jobId, notes: event.notes);
+    final result = await repository.completeJob(
+      event.jobId,
+      notes: event.notes,
+      images: event.images,
+      partsUsed: event.partsUsed,
+    );
     result.fold(
       (failure) => emit(JobActionFailure(failure.message)),
       (_) => emit(JobActionSuccess(event.jobId, 'Job completed successfully')),
+    );
+  }
+
+  Future<void> _onCancelJob(CancelJobEvent event, Emitter<JobActionState> emit) async {
+    emit(JobActionLoading(event.jobId));
+    final result = await repository.cancelJob(event.jobId, event.reason);
+    result.fold(
+      (failure) => emit(JobActionFailure(failure.message)),
+      (_) => emit(JobActionSuccess(event.jobId, 'Job cancelled successfully')),
     );
   }
 }

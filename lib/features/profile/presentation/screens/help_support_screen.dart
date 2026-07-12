@@ -1,7 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../di/injection_container.dart';
+import '../../../../core/models/app_settings_model.dart';
 
-class HelpSupportScreen extends StatelessWidget {
+class HelpSupportScreen extends StatefulWidget {
   const HelpSupportScreen({super.key});
+
+  @override
+  State<HelpSupportScreen> createState() => _HelpSupportScreenState();
+}
+
+class _HelpSupportScreenState extends State<HelpSupportScreen> {
+  bool _isLoading = true;
+  String _phone = '+1 800 123 4567';
+  String _email = 'support@rajsri.com';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSettings();
+  }
+
+  Future<void> _fetchSettings() async {
+    try {
+      final response = await sl<DioClient>().dio.get('/settings');
+      if (response.data != null && response.data['data'] != null) {
+        final settings = AppSettingsModel.fromJson(response.data['data']);
+        setState(() {
+          if (settings.contactNumber != null && settings.contactNumber!.isNotEmpty) {
+            _phone = settings.contactNumber!;
+          }
+          if (settings.supportEmail != null && settings.supportEmail!.isNotEmpty) {
+            _email = settings.supportEmail!;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,20 +66,33 @@ class HelpSupportScreen extends StatelessWidget {
                 color: colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 24),
-            _ContactCard(
-              icon: Icons.phone_in_talk_outlined,
-              title: 'Call Support',
-              subtitle: '+1 800 123 4567',
-              onTap: () {},
-            ),
-            const SizedBox(height: 16),
-            _ContactCard(
-              icon: Icons.email_outlined,
-              title: 'Email Support',
-              subtitle: 'support@rajsri.com',
-              onTap: () {},
-            ),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              _ContactCard(
+                icon: Icons.phone_in_talk_outlined,
+                title: 'Call Support',
+                subtitle: _phone,
+                onTap: () async {
+                  final uri = Uri.parse('tel:$_phone');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              _ContactCard(
+                icon: Icons.email_outlined,
+                title: 'Email Support',
+                subtitle: _email,
+                onTap: () async {
+                  final uri = Uri.parse('mailto:$_email');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri);
+                  }
+                },
+              ),
+            ],
             const SizedBox(height: 48),
             Text(
               'Frequently Asked Questions',

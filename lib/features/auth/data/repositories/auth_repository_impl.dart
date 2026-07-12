@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/error/error_handler.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
@@ -17,28 +19,26 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Either<Failure, UserModel>> login(String email, String password) async {
-    try {
-      final response = await remoteDataSource.login(LoginRequest(email: email, password: password));
+  Future<Either<Failure, UserModel>> login(String phone, String password) async {
+    return ErrorHandler.execute(() async {
+      final response = await remoteDataSource.login(LoginRequest(phone: phone, password: password));
       await localDataSource.saveToken(response.token);
-      return Right(response.user);
-    } on DioException catch (e) {
-      return Left(ServerFailure(e.response?.data['message'] ?? 'Login failed'));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+      return response.user;
+    });
   }
 
   @override
   Future<Either<Failure, void>> logout() async {
-    try {
-      await remoteDataSource.logout();
-      await localDataSource.clearToken();
-      return const Right(null);
-    } catch (e) {
-      await localDataSource.clearToken(); // Clear token even if API fails
-      return const Right(null);
-    }
+    return ErrorHandler.execute(() async {
+      try {
+        final token = localDataSource.getToken();
+        if (token != null && token.isNotEmpty) {
+          await remoteDataSource.logout();
+        }
+      } finally {
+        await localDataSource.clearToken();
+      }
+    });
   }
 
   @override

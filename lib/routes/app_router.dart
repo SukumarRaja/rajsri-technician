@@ -48,7 +48,11 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return ServiceUpdateScreen(
+            jobDbId: extra['jobDbId'] ?? 0,
             jobId: extra['jobId'] ?? '#UNK',
+            customerName: extra['customerName'] ?? 'Unknown',
+            serviceName: extra['serviceName'] ?? 'Unknown',
+            statusLabel: extra['statusLabel'] ?? 'Unknown',
           );
         },
       ),

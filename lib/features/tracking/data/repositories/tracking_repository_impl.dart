@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+
 import '../../../../core/error/failures.dart';
 import '../../domain/repositories/tracking_repository.dart';
 import '../datasources/tracking_remote_datasource.dart';
@@ -11,12 +12,22 @@ class TrackingRepositoryImpl implements TrackingRepository {
   TrackingRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, void>> updateLocation(double latitude, double longitude) async {
+  Future<Either<Failure, void>> updateLocation(
+    double latitude,
+    double longitude,
+    DateTime recordedAt,
+  ) async {
     try {
-      await remoteDataSource.updateLocation(TrackingRequest(latitude: latitude, longitude: longitude));
+      await remoteDataSource.updateLocation(
+        TrackingRequest(lat: latitude, lng: longitude, recordedAt: recordedAt),
+      );
       return const Right(null);
     } on DioException catch (e) {
-      return Left(ServerFailure(e.response?.data['message'] ?? 'Failed to update location'));
+      return Left(
+        ServerFailure(
+          e.response?.data['message'] ?? 'Failed to update location',
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

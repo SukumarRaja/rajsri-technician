@@ -8,12 +8,14 @@ part of 'tracking_request.dart';
 
 TrackingRequest _$TrackingRequestFromJson(Map<String, dynamic> json) =>
     TrackingRequest(
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      lat: (json['lat'] as num).toDouble(),
+      lng: (json['lng'] as num).toDouble(),
+      recordedAt: DateTime.parse(json['recorded_at'] as String),
     );
 
 Map<String, dynamic> _$TrackingRequestToJson(TrackingRequest instance) =>
     <String, dynamic>{
-      'latitude': instance.latitude,
-      'longitude': instance.longitude,
+      'lat': instance.lat,
+      'lng': instance.lng,
+      'recorded_at': instance.recordedAt.toIso8601String(),
     };
