@@ -287,7 +287,7 @@ class JobCard extends StatelessWidget {
                 status == 'cancelled'
                     ? SizedBox.shrink()
                     : const SizedBox(height: 16),
-                status == 'cancelled'
+                status == 'cancelled' || status == 'completed'
                     ? SizedBox.shrink()
                     : Row(
                         children: [
