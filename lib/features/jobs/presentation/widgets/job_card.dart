@@ -15,6 +15,7 @@ class JobCard extends StatelessWidget {
   final String status;
   final String statusLabel;
   final dynamic isDashboard;
+  final String? date;
 
   const JobCard({
     super.key,
@@ -27,6 +28,7 @@ class JobCard extends StatelessWidget {
     required this.status,
     required this.statusLabel,
     this.isDashboard,
+    this.date,
   });
 
   bool _canStartJob(String timeStr) {
@@ -191,9 +193,10 @@ class JobCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      isDashboard
-                          ? '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}'
-                          : '',
+                      date ??
+                          (isDashboard == true
+                              ? '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}'
+                              : ''),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
