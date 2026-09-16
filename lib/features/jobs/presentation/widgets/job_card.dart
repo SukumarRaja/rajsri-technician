@@ -14,6 +14,7 @@ class JobCard extends StatelessWidget {
   final String time;
   final String status;
   final String statusLabel;
+  final String? price;
   final dynamic isDashboard;
   final String? date;
 
@@ -27,6 +28,7 @@ class JobCard extends StatelessWidget {
     required this.time,
     required this.status,
     required this.statusLabel,
+    this.price,
     this.isDashboard,
     this.date,
   });
@@ -285,6 +287,22 @@ class JobCard extends StatelessWidget {
                         color: colorScheme.onSurface,
                       ),
                     ),
+                    if (price != null && price!.isNotEmpty) ...[
+                      const SizedBox(width: 16),
+                      Icon(
+                        Icons.payments_outlined,
+                        size: 16,
+                        color: colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '₹$price',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
                 status == 'cancelled'
@@ -320,6 +338,7 @@ class JobCard extends StatelessWidget {
                                       'customerName': customerName,
                                       'serviceName': title,
                                       'statusLabel': statusLabel,
+                                      'price': price ?? 'N/A',
                                     },
                                   );
                                   return;

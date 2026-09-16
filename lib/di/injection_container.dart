@@ -21,6 +21,7 @@ import '../features/jobs/data/repositories/jobs_repository_impl.dart';
 import '../features/jobs/domain/repositories/jobs_repository.dart';
 import '../features/jobs/presentation/bloc/job_action_bloc.dart';
 import '../features/jobs/presentation/bloc/jobs_bloc.dart';
+import '../features/jobs/presentation/bloc/job_detail_bloc.dart';
 
 import '../core/services/location_service.dart';
 import '../features/tracking/data/datasources/tracking_remote_datasource.dart';
@@ -83,6 +84,7 @@ Future<void> init() async {
 
   sl.registerFactory(() => JobActionBloc(repository: sl()));
   sl.registerFactory(() => JobsBloc(repository: sl()));
+  sl.registerFactory(() => JobDetailBloc(repository: sl()));
 
   // Features - Tracking
   sl.registerLazySingleton(() => LocationService());

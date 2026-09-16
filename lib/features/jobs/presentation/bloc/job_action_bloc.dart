@@ -45,9 +45,13 @@ class JobActionBloc extends Bloc<JobActionEvent, JobActionState> {
     emit(JobActionLoading(event.jobId));
     final result = await repository.completeJob(
       event.jobId,
+      afterNotes: event.afterNotes,
       notes: event.notes,
       images: event.images,
       partsUsed: event.partsUsed,
+      paymentReceived: event.paymentReceived,
+      paymentAmount: event.paymentAmount,
+      paymentMethod: event.paymentMethod,
     );
     result.fold(
       (failure) => emit(JobActionFailure(failure.message)),

@@ -23,12 +23,16 @@ Map<String, dynamic> _$DashboardResponseToJson(DashboardResponse instance) =>
 DashboardData _$DashboardDataFromJson(Map<String, dynamic> json) =>
     DashboardData(
       stats: DashboardStats.fromJson(json['stats'] as Map<String, dynamic>),
-      upcomingJobs: (json['upcoming_jobs'] as List<dynamic>?)
+      upcomingJobs:
+          (json['upcoming_jobs'] as List<dynamic>?)
               ?.map((e) => DashboardJob.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      upcomingAmcVisits: (json['upcoming_amc_visits'] as List<dynamic>?)
-              ?.map((e) => DashboardAmcVisit.fromJson(e as Map<String, dynamic>))
+      upcomingAmcVisits:
+          (json['upcoming_amc_visits'] as List<dynamic>?)
+              ?.map(
+                (e) => DashboardAmcVisit.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -69,16 +73,16 @@ Map<String, dynamic> _$DashboardStatsToJson(DashboardStats instance) =>
     };
 
 DashboardJob _$DashboardJobFromJson(Map<String, dynamic> json) => DashboardJob(
-      id: (json['id'] as num).toInt(),
-      bookingNumber: json['booking_number'] as String,
-      scheduledDate: json['scheduled_date'] as String?,
-      time: json['time'] as String,
-      status: json['status'] as String,
-      statusLabel: json['status_label'] as String,
-      serviceName: json['service_name'] as String,
-      customerName: json['customer_name'] as String,
-      address: json['address'] as String?,
-    );
+  id: (json['id'] as num).toInt(),
+  bookingNumber: json['booking_number'] as String,
+  scheduledDate: json['scheduled_date'] as String?,
+  time: json['time'] as String,
+  status: json['status'] as String,
+  statusLabel: json['status_label'] as String,
+  serviceName: json['service_name'] as String,
+  customerName: json['customer_name'] as String,
+  address: json['address'] as String?,
+);
 
 Map<String, dynamic> _$DashboardJobToJson(DashboardJob instance) =>
     <String, dynamic>{

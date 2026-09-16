@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../models/change_password_request.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
 
@@ -15,4 +16,7 @@ abstract class AuthRemoteDataSource {
 
   @POST(ApiEndpoints.logout)
   Future<void> logout();
+
+  @POST(ApiEndpoints.changePassword)
+  Future<void> changePassword(@Body() ChangePasswordRequest request);
 }

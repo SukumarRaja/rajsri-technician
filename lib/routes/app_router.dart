@@ -12,6 +12,10 @@ import '../features/profile/presentation/screens/earnings_screen.dart';
 import '../features/notification/presentation/screens/notifications_screen.dart';
 import '../shared/widgets/main_navigation_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../di/injection_container.dart';
+import '../features/jobs/presentation/bloc/job_detail_bloc.dart';
+import '../features/jobs/presentation/bloc/job_detail_event.dart';
 
 class AppRouter {
   final SharedPreferences sharedPreferences;
@@ -25,10 +29,7 @@ class AppRouter {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const MainNavigationScreen(),
@@ -47,12 +48,16 @@ class AppRouter {
         path: '/service-update',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ServiceUpdateScreen(
-            jobDbId: extra['jobDbId'] ?? 0,
-            jobId: extra['jobId'] ?? '#UNK',
-            customerName: extra['customerName'] ?? 'Unknown',
-            serviceName: extra['serviceName'] ?? 'Unknown',
-            statusLabel: extra['statusLabel'] ?? 'Unknown',
+          return BlocProvider(
+            create: (context) => sl<JobDetailBloc>()..add(FetchJobDetailEvent(extra['jobDbId'] ?? 0)),
+            child: ServiceUpdateScreen(
+              jobDbId: extra['jobDbId'] ?? 0,
+              jobId: extra['jobId'] ?? '#UNK',
+              customerName: extra['customerName'] ?? 'Unknown',
+              serviceName: extra['serviceName'] ?? 'Unknown',
+              statusLabel: extra['statusLabel'] ?? 'Unknown',
+              price: extra['price'] ?? 'Unknown',
+            ),
           );
         },
       ),
@@ -78,10 +83,12 @@ class AppRouter {
       ),
     ],
     redirect: (context, state) {
-      final hasSeenOnboarding = sharedPreferences.getBool(AppConstants.onboardingCompleteKey) ?? false;
+      final hasSeenOnboarding =
+          sharedPreferences.getBool(AppConstants.onboardingCompleteKey) ??
+          false;
       final token = sharedPreferences.getString(AppConstants.tokenKey);
       final isLoggedIn = token != null && token.isNotEmpty;
-      
+
       final isGoingToOnboarding = state.uri.toString() == '/onboarding';
       final isGoingToLogin = state.uri.toString() == '/login';
 
@@ -97,20 +104,20 @@ class AppRouter {
           return '/dashboard';
         }
       }
-      
+
       return null;
     },
   );
 
   String _getInitialLocation() {
-    final hasSeenOnboarding = sharedPreferences.getBool(AppConstants.onboardingCompleteKey) ?? false;
+    final hasSeenOnboarding =
+        sharedPreferences.getBool(AppConstants.onboardingCompleteKey) ?? false;
     if (!hasSeenOnboarding) return '/onboarding';
-    
+
     final token = sharedPreferences.getString(AppConstants.tokenKey);
     final isLoggedIn = token != null && token.isNotEmpty;
     if (isLoggedIn) return '/dashboard';
-    
+
     return '/login';
   }
 }
-

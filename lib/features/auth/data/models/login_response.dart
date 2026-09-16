@@ -19,13 +19,17 @@ class LoginResponse {
 
 @JsonSerializable()
 class LoginData {
-  @JsonKey(name: 'access_token')
+  @JsonKey(name: 'token', readValue: _readToken)
   final String accessToken;
   @JsonKey(name: 'token_type')
-  final String tokenType;
+  final String? tokenType;
   final UserModel user;
 
-  LoginData({required this.accessToken, required this.tokenType, required this.user});
+  LoginData({required this.accessToken, this.tokenType, required this.user});
+
+  static Object? _readToken(Map json, String key) {
+    return json['token'] ?? json['access_token'];
+  }
 
   factory LoginData.fromJson(Map<String, dynamic> json) => _$LoginDataFromJson(json);
   Map<String, dynamic> toJson() => _$LoginDataToJson(this);

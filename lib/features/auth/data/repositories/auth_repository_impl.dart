@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/change_password_request.dart';
 import '../models/login_request.dart';
 import '../models/user_model.dart';
 
@@ -38,6 +37,23 @@ class AuthRepositoryImpl implements AuthRepository {
       } finally {
         await localDataSource.clearToken();
       }
+    });
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    return ErrorHandler.execute(() async {
+      await remoteDataSource.changePassword(
+        ChangePasswordRequest(
+          currentPassword: currentPassword,
+          password: password,
+          passwordConfirmation: passwordConfirmation,
+        ),
+      );
     });
   }
 

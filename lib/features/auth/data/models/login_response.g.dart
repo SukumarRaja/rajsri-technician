@@ -21,13 +21,13 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
     };
 
 LoginData _$LoginDataFromJson(Map<String, dynamic> json) => LoginData(
-  accessToken: json['access_token'] as String,
-  tokenType: json['token_type'] as String,
+  accessToken: LoginData._readToken(json, 'token') as String,
+  tokenType: json['token_type'] as String?,
   user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$LoginDataToJson(LoginData instance) => <String, dynamic>{
-  'access_token': instance.accessToken,
+  'token': instance.accessToken,
   'token_type': instance.tokenType,
   'user': instance.user,
 };

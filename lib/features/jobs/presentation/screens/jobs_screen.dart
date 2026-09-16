@@ -402,6 +402,7 @@ class _JobsListState extends State<_JobsList> {
           time: job.time ?? job.scheduledAt ?? '',
           status: job.status ?? 'pending',
           statusLabel: job.statusLabel ?? 'Pending',
+          price: job.price?.toString(),
           isDashboard: false,
         );
 

@@ -23,6 +23,7 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
   Future<JobsResponse> getJobs({
     String? search,
     String? status,
+    int? perPage,
     int? todayPage,
     int? upcomingPage,
   }) async {
@@ -30,6 +31,7 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
     final queryParameters = <String, dynamic>{
       r'search': search,
       r'status': status,
+      r'per_page': perPage,
       r'today_page': todayPage,
       r'upcoming_page': upcomingPage,
     };
@@ -62,12 +64,14 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
     int? page,
     String? status,
     String? search,
+    int? perPage,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'status': status,
       r'search': search,
+      r'per_page': perPage,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
@@ -94,17 +98,43 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
   }
 
   @override
-  Future<void> acceptJob(JobActionRequest request) async {
+  Future<JobDetailResponse> getJobDetail(int jobId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(request.toJson());
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<JobDetailResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/technician/jobs/${jobId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late JobDetailResponse _value;
+    try {
+      _value = JobDetailResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<void> acceptJob(int jobId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<void>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/technician/accept',
+            '/technician/jobs/${jobId}/accept',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -134,11 +164,15 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
   }
 
   @override
-  Future<void> startJob(int jobId) async {
+  Future<void> startJob(int jobId, Map<String, dynamic>? body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    if (body != null) {
+      _data.addAll(body!);
+    }
     final _options = _setStreamType<void>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
@@ -183,6 +217,26 @@ class _JobsRemoteDataSource implements JobsRemoteDataSource {
           .compose(
             _dio.options,
             '/technician/jobs/${jobId}/cancel',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    await _dio.fetch<void>(_options);
+  }
+
+  @override
+  Future<void> updateServices(int jobId, UpdateServicesRequest request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<void>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/technician/jobs/${jobId}/services',
             queryParameters: queryParameters,
             data: _data,
           )
